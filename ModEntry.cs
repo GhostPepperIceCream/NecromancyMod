@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -9,13 +9,14 @@ using StardewValley.Characters;
 using System.IO;
 using HarmonyLib;
 using StardewValley.Monsters;
+using StardewValley.Buffs;
 
 namespace NecromancyMod
 {
     public class ModEntry : Mod
     {
         public ModConfig config;
-        public ControlMonsters monsterController = new ControlMonsters();
+        public static ControlMonsters monsterController = new ControlMonsters();
         public NPC chestFriend;
 
         private SButton summonItemFriendKey;
@@ -24,10 +25,11 @@ namespace NecromancyMod
         private string chestType;
         private bool attackSlimesInHutch;
         private int baseDamage;
+        private static IMonitor Monitor;
 
         public override void Entry(IModHelper helper)
         {
-            Helper.Events.GameLoop.GameLaunched += onLaunched;
+            helper.Events.GameLoop.GameLaunched += onLaunched;
             helper.Events.Input.ButtonPressed += OnButtonsChanged;
             helper.Events.Player.Warped += Warped;
             helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
@@ -35,12 +37,45 @@ namespace NecromancyMod
             helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             helper.Events.GameLoop.Saving += Saving;
 
+            Initialize(Monitor);
+
             var harmony = new Harmony(this.ModManifest.UniqueID);
 
-            //harmony.Patch(
-            //    original: Game1.player.applyBuff(string id),
-            //    prefix: new HarmonyMethod(typeof(ModEntry), 
-            //    ) ;
+            harmony.Patch(
+                original: AccessTools.Method(typeof(BuffManager), nameof(BuffManager.Apply)),
+                prefix: new HarmonyMethod(typeof(ModEntry), nameof(applyBuff_prefix))
+                );
+        }
+
+        public static bool applyBuff_prefix(Buff buff)
+        {
+            try
+            {
+                if (monsterController.isActive)
+                {
+                    if (buff.id == "25" || buff.id == "19")
+                    {
+                        return false;
+                    } else
+                    {
+                        return true;
+                    }
+                } else
+                {
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Monitor.Log($"Failed in buffing prefix:\n{e}", LogLevel.Error);
+                return true;
+            }
+            
+        }
+
+        internal static void Initialize(IMonitor monitor)
+        {
+            Monitor = monitor;
         }
 
         private void onLaunched(object sender, GameLaunchedEventArgs e)
