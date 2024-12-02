@@ -1,0 +1,10 @@
+﻿{
+  "Name": "Necromancy",
+  "Author": "GhostPepperIceCream",
+  "Version": "1.0.0",
+  "Description": "A mod that allows you to be a necromancer.",
+  "UniqueID": "GhostPepperIceCream.Necromancy",
+  "EntryDll": "NecromancyMod.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": []
+}
