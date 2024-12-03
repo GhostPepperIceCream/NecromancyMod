@@ -1,4 +1,4 @@
-﻿using StardewValley;
+using StardewValley;
 
 namespace NecromancyMod
 {
@@ -13,6 +13,9 @@ namespace NecromancyMod
                     break;
                 case "Mini Harp":
                     Miniharp();
+                    break;
+                case "Hand raised":
+                    HandRaised();
                     break;
                 default:
                     break;
@@ -65,6 +68,17 @@ namespace NecromancyMod
                 new FarmerSprite.AnimationFrame(98, 150, secondaryArm: false, flip: false)
             });
 
+            Game1.player.freezePause = 1500;
+        }
+
+        private static void HandRaised()
+        {
+            Game1.player.faceDirection(2);
+
+            Game1.player.FarmerSprite.animateOnce(new FarmerSprite.AnimationFrame[1]
+            {
+                new FarmerSprite.AnimationFrame(15, 1500, secondaryArm: false, flip: false),
+            }) ;
             Game1.player.freezePause = 1500;
         }
     }
